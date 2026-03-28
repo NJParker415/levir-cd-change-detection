@@ -1,5 +1,5 @@
 """
-Dataset class for loading and preprocessing images and masks for training and validation.
+Dataset class for loading and preprocessing images and masks
 """
 
 # Imports
