@@ -1,6 +1,7 @@
 # Image data
 data/raw/
 data/patches/
+*.zip
 
 # Model outputs
 *.pth
