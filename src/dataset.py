@@ -53,37 +53,41 @@ def precrop_dataset(
     src_dir: str,
     dst_dir: str,
     patch_size: int = 256,
-    splits: Tuple[str, ...] = ('train', 'val', 'test'),
+    splits: Tuple[str, ...] = ("train", "val", "test"),
 ) -> None:
-    """Pre-crop dataset into patches"""
+    """Pre-crop the dataset"""
+
     src_dir = Path(src_dir)
     dst_dir = Path(dst_dir)
-
-    for split in splits:
-        for subfolder in ['A', 'B', 'label']:
-            in_folder = src_dir / split / subfolder
+ 
+    for subfolder in ("A", "B", "label"):
+        in_folder = src_dir / subfolder
+ 
+        if not in_folder.exists():
+            print(f"Warning: {in_folder} not found, skipping")
+            continue
+ 
+        all_images = sorted(in_folder.glob("*.png"))
+ 
+        for split in splits:
             out_folder = dst_dir / split / subfolder
             out_folder.mkdir(parents=True, exist_ok=True)
-
-            if not in_folder.exists():
-                print(f"Warning: {in_folder} does not exist. Skipping.")
-                continue
-
-            image_files = sorted(in_folder.glob('*.png'))  # Assuming images are in PNG format
-            print(f"Processing {len(image_files)} images from {split}/{subfolder}")
-
-            for img_path in image_files:
+ 
+            split_images = [p for p in all_images if p.stem.startswith(f"{split}_")]
+            print(f"Cropping {len(split_images)} images from {subfolder}/{split}")
+ 
+            for img_path in split_images:
                 img = Image.open(img_path)
                 w, h = img.size
                 stem = img_path.stem
-
+ 
                 for i in range(0, h, patch_size):
                     for j in range(0, w, patch_size):
                         patch = img.crop((j, i, j + patch_size, i + patch_size))
-                        patch_name = f"{stem}_{i}_{j}.png"
+                        patch_name = f"{stem}_{i // patch_size}_{j // patch_size}.png"
                         patch.save(out_folder / patch_name)
-
-        print(f"Patches saved to {dst_dir}")
+ 
+    print(f"Pre-cropping complete. Patches saved to {dst_dir}")
 
 class LEVIRCDDataset(Dataset):
     """LEVIR-CD dataset for change detection"""
