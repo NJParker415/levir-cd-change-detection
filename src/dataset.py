@@ -60,21 +60,33 @@ def precrop_dataset(
     src_dir = Path(src_dir)
     dst_dir = Path(dst_dir)
  
-    for subfolder in ("A", "B", "label"):
-        in_folder = src_dir / subfolder
+    # Detect layout: check if A/B/label exist at top level (flat)
+    # or under split subdirectories
+    is_flat = (src_dir / "A").exists()
  
-        if not in_folder.exists():
-            print(f"Warning: {in_folder} not found, skipping")
-            continue
+    for split in splits:
+        for subfolder in ("A", "B", "label"):
+            if is_flat:
+                in_folder = src_dir / subfolder
+            else:
+                in_folder = src_dir / split / subfolder
  
-        all_images = sorted(in_folder.glob("*.png"))
+            if not in_folder.exists():
+                print(f"Warning: {in_folder} not found, skipping")
+                continue
  
-        for split in splits:
             out_folder = dst_dir / split / subfolder
             out_folder.mkdir(parents=True, exist_ok=True)
  
-            split_images = [p for p in all_images if p.stem.startswith(f"{split}_")]
-            print(f"Cropping {len(split_images)} images from {subfolder}/{split}")
+            all_images = sorted(in_folder.glob("*.png"))
+ 
+            # If flat layout, filter by filename prefix; otherwise take all
+            if is_flat:
+                split_images = [p for p in all_images if p.stem.startswith(f"{split}_")]
+            else:
+                split_images = all_images
+ 
+            print(f"Cropping {len(split_images)} images from {split}/{subfolder}")
  
             for img_path in split_images:
                 img = Image.open(img_path)
