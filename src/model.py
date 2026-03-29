@@ -1,3 +1,5 @@
+"""Model definition for Siamese UNet change detection"""
+
 # Imports
 import torch
 import torch.nn as nn
