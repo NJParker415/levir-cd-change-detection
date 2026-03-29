@@ -41,11 +41,7 @@ class MetricTracker:
         }
     
     def __repr__(self) -> str:
-        metrics = self.compute()
-        return {
-            f"F1={metrics['f1']:.4f} |"
-            f"IoU={metrics['iou']:.4f} |"
-            f"Precision={metrics['precision']:.4f} |"
-            f"Recall={metrics['recall']:.4f} |"
-            f"Accuracy={metrics['accuracy']:.4f}"
-        }
+        m = self.compute()
+        return "F1={:.4f} | IoU={:.4f} | P={:.4f} | R={:.4f} | Acc={:.4f}".format(
+            m["f1"], m["iou"], m["precision"], m["recall"], m["accuracy"]
+        )
